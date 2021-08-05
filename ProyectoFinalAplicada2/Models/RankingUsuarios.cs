@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace ProyectoFinalAplicada2.Models
 {
     public class RankingUsuarios
+
     {
         public int id { get; set; }
         public string Nombre { get; set; }
