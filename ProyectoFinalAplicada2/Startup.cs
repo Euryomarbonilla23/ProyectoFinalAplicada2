@@ -1,15 +1,21 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ProyectoFinalAplicada2.Data;
+using ProyectoFinalAplicada2.Areas.Identity;
+using ProyectoFinalAplicada2.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProyectoFinalAplicada2.BLL;
 
 namespace ProyectoFinalAplicada2
 {
@@ -26,9 +32,31 @@ namespace ProyectoFinalAplicada2
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddDbContext<Contexto>(options =>
+              options.UseSqlite(
+                  Configuration.GetConnectionString("DefaultConnection"))
+              
+              );
+
+            services.AddScoped<RankingUsuariosBLL>();
+
+            services.AddDefaultIdentity<IdentityUser>(options => {
+                options.SignIn.RequireConfirmedAccount = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+                .AddEntityFrameworkStores<Contexto>();
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
+            
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,6 +65,7 @@ namespace ProyectoFinalAplicada2
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseMigrationsEndPoint();
             }
             else
             {
@@ -50,8 +79,12 @@ namespace ProyectoFinalAplicada2
 
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
