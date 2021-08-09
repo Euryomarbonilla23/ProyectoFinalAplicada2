@@ -41,12 +41,12 @@
     }
 
 .nav-item ::deep a.active {
-    background-color: rgba(4a5a19);
+    background-color: rgba(0,0,0,0.4);
     color: white;
 }
 
 .nav-item ::deep a:hover {
-    background-color: rgba(4a5a19);
+    background-color: rgba(0,0,0,0.4);
     color: white;
 }
 
